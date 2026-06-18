@@ -13,8 +13,13 @@ This project will be built incrementally each week.
 - git commit  
 - git push
 
-Week4 Updates:
+## Week 4 Updates:
+
 -added .env, rag_app.py, requirements.txt
 -installed fastapi uvicorn python-dotenv google-generativeai  / Dependencies
 The rag_app.py is the main backend of the rag project, it makes uvicorn run some could say.
 Questions: Honestly I'm not too sure about the connection between files, I'm not sure if I messed up somewhere but uvicorn is running it's just not really connecting with the .env. Than again it might and I'm just expecting a different result.
+
+## Week 5 Updates:
+
+Fixed the mess I made in week 4 and now the server actually works properly, /health responds well and the AI responds to the hardcoded prompt. Right now /test-gemini starts with @app.get("/test-gemini") which tells FastAPI that whenever someone visits /test-gemini to run the function below. It then runs the function which calls Gemini through FastAPI servers, chooses the model, and sends the prompt. Gemini makes it's respone and the SDK turns it into an object, stored at response=, which is then printed to give the result. How would memory even work though, would I have to store it locally?
