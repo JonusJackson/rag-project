@@ -29,11 +29,19 @@ def health():
 @app.get("/test-gemini")
 def test_gemini():
 
-    response = gemini_client.models.generate_content(
+    step1_response = gemini_client.models.generate_content(
         model="gemini-2.5-flash",
-        contents="Say hello in one sentence."
+        contents="Create a short, very simple, and direct outline for photosynthesis."
     )
 
+    outline = step1_response.text
+
+    step2_response = gemini_client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=f"Create a short, easily understandable paragraph about photosynthesis based on the following outline: {outline}"
+    )
+
+    instructions = step2_response.text
     return {
-        "response": response.text
+        "instructions": instructions
     }

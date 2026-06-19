@@ -23,3 +23,7 @@ Questions: Honestly I'm not too sure about the connection between files, I'm not
 ## Week 5 Updates:
 
 Fixed the mess I made in week 4 and now the server actually works properly, /health responds well and the AI responds to the hardcoded prompt. Right now /test-gemini starts with @app.get("/test-gemini") which tells FastAPI that whenever someone visits /test-gemini to run the function below. It then runs the function which calls Gemini through FastAPI servers, chooses the model, and sends the prompt. Gemini makes it's respone and the SDK turns it into an object, stored at response=, which is then printed to give the result. How would memory even work though, would I have to store it locally? --- Commit 2: I realized that I leaked the API key in the past, so I fixed it. Also added an example file for the .env.
+
+## Week 6 Updates:
+
+Changed the /test-gemini function so that it had a multi-step flow. First it would create an outline for how photosynthesis happens, then it would use that outline to give a brief explanation. I had to make it give short and simple responses because it kept making them way too long and having strange breaks in between parts. The steps are seperated so that it can give adequate explanation to each part described in the outline. The only challenge was givin a good enough prompt to not break the localhost. 
