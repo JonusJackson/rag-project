@@ -131,20 +131,14 @@ def run_rag(query, conversation_history=None):
       - "error":      Error message (empty string if no error)
     """
 
-    # ── Week 12 TODO ──────────────────────────────────────────────────────────
-    # Add input security before any processing happens.
-    #
-    # The RAG concept: always validate at the system boundary — the moment
-    # user input enters the app, before it touches the LLM or vector store.
-    # Prompt injection can hijack LLM behavior, so we stop bad input here.
-    #
-    # Steps:
-    #   1. Call validate_input(query) → returns (is_valid, error_message)
-    #   2. If not is_valid, return this dict immediately:
-    #        {"answer": error_message, "sources": [], "distances": [],
-    #         "confidence": 0.0, "grounding": {}, "error": error_message}
-    #   3. Clean up the query: query = sanitize_input(query)
+    # ── Week 12 TODO ────────────────────────────────────────────────────────── (Done)
+    is_valid, error_message = validate_input(query)
+    if not is_valid:
+        return {"answer": error_message, "sources": [], "distances": [], "confidence": 0.0, "grounding": {}, "error": error_message}
+
+    query = sanitize_input(query)
     # ─────────────────────────────────────────────────────────────────────────
+
 
     # ── Week 15 TODO ──────────────────────────────────────────────────────────
     # Rewrite the query before retrieval to improve embedding quality.

@@ -25,8 +25,12 @@ import re
 # identity, asking the model to forget its context, etc.
 #
 BLOCKED_PATTERNS = [
-    # Add your blocked phrases here (all lowercase)
-    # Example: "ignore previous instructions",
+    "ignore previous instructions",
+    "pretend you are",
+    "you are now",
+    "system prompt",
+    "hypothetical",
+    "assume the role of",
 ]
 
 # Maximum allowed length for a user query.
@@ -42,30 +46,23 @@ def validate_input(query):
         (True, "")                    — query is safe, proceed
         (False, "error message")      — query is unsafe, show the error
     """
-    # TODO (Week 12): Implement three safety checks.
-    #
-    # --- The RAG/security concept ---
-    # We validate at the system boundary — the moment user input enters our app.
-    # This is called "input validation" and it's a fundamental security principle.
-    # Once bad input reaches the LLM prompt, it's much harder to defend against.
-    #
+    # TODO (Week 12): Implement three safety checks. (Done)
     # Check 1 — Empty input:
-    #   If query is empty or only whitespace, the app would send a pointless
-    #   API call. Return: (False, "Please enter a question before submitting.")
-    #
+    if not query or not query.strip():
+        return False, "Please enter a question before submitting."
+
     # Check 2 — Input too long:
-    #   Long inputs cost more tokens and can be used to flood the context window.
-    #   If len(query) > MAX_QUERY_LENGTH, return:
-    #   (False, f"Your query is too long. Please keep it under {MAX_QUERY_LENGTH} characters.")
-    #
+    if len(query) > MAX_QUERY_LENGTH:
+        return False, f"Your query is too long. Please keep it under {MAX_QUERY_LENGTH} characters."
+
     # Check 3 — Prompt injection patterns:
-    #   Convert the query to lowercase (query.lower()), then check whether any
-    #   string from BLOCKED_PATTERNS appears inside it.
-    #   If found, return: (False, "Your query contains content that cannot be processed.")
-    #
-    # If all three checks pass, return: (True, "")
-    #
-    return True, ""  # placeholder — replace with your implementation
+    lowered = query.lower()
+    for pattern in BLOCKED_PATTERNS:
+        if pattern in lowered:
+            return False, "Your query contains content that cannot be processed."
+
+    
+    return True, ""
 
 
 def sanitize_input(query):
