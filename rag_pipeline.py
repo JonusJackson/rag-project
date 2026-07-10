@@ -85,22 +85,12 @@ def generate_answer(query, context_docs, conversation_history=None):
     context = "\n\n".join(
         [f"Document {i+1}: {doc}" for i, doc in enumerate(context_docs)]
     )
-
-    # ── Week 11 TODO ──────────────────────────────────────────────────────────
-    # Add conversation history to the prompt.
-    #
-    # The RAG concept: LLMs have no memory between API calls. To support
-    # follow-up questions, we paste the prior conversation directly into the
-    # prompt so the model can see what was already discussed.
-    #
-    # If conversation_history is not None and len(conversation_history) > 0:
-    #   history_text = conversation_history.get_formatted_history()
-    #   Set history_section to: f"\nPrevious conversation:\n{history_text}\n"
-    # Otherwise set history_section = ""
-    #
-    # Then include {history_section} in the prompt string below (already shown).
-    # ─────────────────────────────────────────────────────────────────────────
-    history_section = ""  # Week 11: replace with conversation history logic
+# ── Week 11 TODO (Done) ──────────────────────────────────────────────────────────
+    if conversation_history is not None and len(conversation_history) > 0:
+        history_text = conversation_history.get_formatted_history()
+        history_section = f"\nPrevious conversation:\n{history_text}\n"
+    else:
+        history_section = ""
 
     prompt = f"""You are a helpful assistant that answers questions based on the provided context documents.
 
@@ -210,17 +200,10 @@ def run_rag(query, conversation_history=None):
     confidence = 0.0  # Week 13: replace with calculate_confidence(distances)
     grounding = {}    # Week 13: replace with check_hallucination(answer, documents)
 
-    # ── Week 11 TODO ──────────────────────────────────────────────────────────
-    # Save this exchange to conversation history so follow-up questions work.
-    #
-    # The RAG concept: we store both sides of the exchange (user question AND
-    # assistant answer) so get_formatted_history() can include both in the
-    # next prompt. Without this step, history is never actually saved.
-    #
-    # Steps (only if conversation_history is not None):
-    #   conversation_history.add_message("user", query)
-    #   conversation_history.add_message("assistant", answer)
-    # ─────────────────────────────────────────────────────────────────────────
+    # ── Week 11 TODO (Done) ──────────────────────────────────────────────────────────
+    if conversation_history is not None:
+        conversation_history.add_message("user", query)
+        conversation_history.add_message("assistant", answer)
 
     return {
         "answer": answer,
