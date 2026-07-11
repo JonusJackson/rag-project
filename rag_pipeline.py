@@ -178,21 +178,9 @@ def run_rag(query, conversation_history=None):
     # Week 14: wrap this in try/except and call handle_api_error(e) on failure
     answer = generate_answer(query, documents, conversation_history)
 
-    # ── Week 13 TODO ──────────────────────────────────────────────────────────
-    # Monitor the response quality after generation.
-    #
-    # The RAG concept: even with context, LLMs can hallucinate. We use
-    # "LLM-as-judge" — asking Gemini to evaluate its own output against the
-    # source documents. We also convert vector distances into a confidence
-    # score so users know how well the retrieved docs matched the query.
-    #
-    # Steps:
-    #   1. confidence = calculate_confidence(distances)
-    #   2. grounding  = check_hallucination(answer, documents)
-    #   Then replace the placeholder values below with these variables.
-    # ─────────────────────────────────────────────────────────────────────────
-    confidence = 0.0  # Week 13: replace with calculate_confidence(distances)
-    grounding = {}    # Week 13: replace with check_hallucination(answer, documents)
+    # ── Week 13 TODO ────────────────────────────────────────────────────────── (Done)
+    confidence = calculate_confidence(distances)
+    grounding = check_hallucination(answer, documents)
 
     # ── Week 11 TODO (Done) ──────────────────────────────────────────────────────────
     if conversation_history is not None:

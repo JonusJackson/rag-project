@@ -35,44 +35,55 @@ def check_hallucination(answer, context_docs):
           - "is_grounded": True if verdict is GROUNDED, False otherwise
           - "warning":     A warning string to show the user (empty if grounded)
     """
-    # TODO (Week 13): Implement LLM-as-judge hallucination detection.
-    #
-    # --- The RAG concept ---
-    # This is a key quality-control technique in RAG systems. We use Gemini
-    # to judge Gemini's own output — asking it to compare the answer against
-    # the source documents and decide if the answer stayed within what the
-    # sources actually say.
-    #
-    # Why temperature=0.0?
-    # We want a consistent classification result, not a creative one.
-    # Setting temperature to 0 makes the model deterministic and precise.
-    #
-    # Steps:
-    #   1. Format context_docs into a single string:
-    #      context = "\n\n".join([f"Document {i+1}: {doc}" for i, doc in enumerate(context_docs)])
-    #
-    #   2. Build a prompt that shows Gemini the context and answer, and asks
-    #      it to respond with exactly one word: GROUNDED, PARTIAL, or HALLUCINATED.
-    #      Explain what each verdict means in the prompt.
-    #
-    #   3. Call _client.models.generate_content() with temperature=0.0
-    #      Get the verdict with: verdict = response.text.strip().upper()
-    #
-    #   4. If the verdict is not one of the three valid words, default to "PARTIAL"
-    #      (the model sometimes adds punctuation or extra words)
-    #
-    #   5. Set the "warning" string:
-    #      - GROUNDED     → warning = ""
-    #      - PARTIAL      → warning = "Note: This answer may include some information beyond the provided sources."
-    #      - HALLUCINATED → warning = "Warning: This answer may contain information not found in the source documents."
-    #
-    #   6. Return the dict. Wrap everything in try/except — if this call fails,
-    #      return: {"verdict": "UNKNOWN", "is_grounded": True, "warning": ""}
-    #
-    return {"verdict": "UNKNOWN", "is_grounded": True, "warning": ""}  # placeholder
+    # TODO (Week 13): Implement LLM-as-judge hallucination detection. (Done)
+    try:
+        context = "\n\n".join([f"Document {i+1}: {doc}" for i, doc in enumerate(context_docs)])
 
+        prompt = f"""You are evaluating whether an AI-generated answer is grounded in the provided source documents.
+
+        SOURCE DOCUMENTS:
+        {context}
+
+        GENERATED ANSWER:
+        {answer}
+
+        Your task: decide if the answer is fully supported by the source documents.
+
+        Respond with exactly one word:
+        - GROUNDED: every claim in the answer is supported by the source documents.
+        - PARTIAL: some claims are supported, but the answer also includes information not found in the sources.
+        - HALLUCINATED: the answer contains claims that are unsupported by, or contradict, the source documents.
+
+        Respond with only one word: GROUNDED, PARTIAL, or HALLUCINATED."""
+
+        response = _client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+            config={"temperature": 0.0},
+        )
+
+        verdict = response.text.strip().upper()
+
+        validate_verdicts = ["GROUNDED", "PARTIAL", "HALLUCINATED"]
+        if verdict not in validate_verdicts:
+            verdict = "PARTIAL"
+
+        warning = {
+            "GROUNDED": "",
+            "PARTIAL": "Note: This answer may include some information beyond the provided sources.",
+            "HALLUCINATED": "Warning: This answer may contain information not found in the source documents.",
+        }
+        return {
+            "verdict": verdict,
+            "is_grounded": verdict == "GROUNDED",
+            "warning": warning[verdict],
+        }
+
+    except Exception:
+        return {"verdict": "UNKNOWN", "is_grounded": True, "warning": ""}
 
 def calculate_confidence(distances):
+    print("distances:", distances)
     """
     Convert ChromaDB similarity distances into a 0–1 confidence score.
 
@@ -83,24 +94,10 @@ def calculate_confidence(distances):
     Returns:
         A float between 0.0 (not confident) and 1.0 (very confident).
     """
-    # TODO (Week 13): Implement the confidence score calculation.
-    #
-    # --- The RAG concept ---
-    # When ChromaDB retrieves documents, it returns a "distance" for each one.
-    # Distance measures how far apart two vectors are in embedding space.
-    # A low distance means the document is very similar to the query —
-    # which means we can be more confident the answer will be relevant.
-    #
-    # The formula to convert distance to confidence:
-    #   confidence = max(0.0, 1.0 - (avg_distance / 2.0))
-    #
-    # Why divide by 2? ChromaDB L2 distances range from 0 to 2, so
-    # dividing by 2 scales the result to a 0–1 range.
-    #
-    # Steps:
-    #   1. If distances is empty, return 0.0
-    #   2. Compute the average: avg_distance = sum(distances) / len(distances)
-    #   3. Apply the formula above
-    #   4. Return the result rounded to 2 decimal places: round(confidence, 2)
-    #
-    return 0.0  # placeholder — replace with your implementation
+    # TODO (Week 13): Implement the confidence score calculation. (Done)
+
+    if not distances:
+        return 0.0
+    avg_distance = sum(distances) / len(distances)
+    confidence = max(0.0, 1.0 - (avg_distance / 2.0))
+    return round(confidence, 2)
