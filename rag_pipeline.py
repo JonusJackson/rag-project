@@ -173,10 +173,23 @@ def run_rag(query, conversation_history=None):
     #         "grounding": {"verdict": "N/A", "is_grounded": True, "warning": ""},
     #         "error": ""}
     # ─────────────────────────────────────────────────────────────────────────
-
+    documents, distances = filter_by_threshold(documents, distances, SIMILARITY_THRESHOLD)
+    if not has_relevant_results(documents):
+        return {
+            "answer": get_fallback_response(), 
+            "sources": [], 
+            "distances": [], 
+            "confidence": 0.0, 
+            "grounding": {"verdict": "N/A", 
+            "is_grounded": True, 
+            "warning": ""}, 
+            "error": ""}
     # ── Week 10: Core Generation — already complete ──────────────────────────
     # Week 14: wrap this in try/except and call handle_api_error(e) on failure
-    answer = generate_answer(query, documents, conversation_history)
+    try:
+        answer = generate_answer(query, documents, conversation_history)
+    except Exception as e:
+        answer = handle_api_error(e)
 
     # ── Week 13 TODO ────────────────────────────────────────────────────────── (Done)
     confidence = calculate_confidence(distances)
