@@ -140,39 +140,16 @@ def run_rag(query, conversation_history=None):
     # ─────────────────────────────────────────────────────────────────────────
 
 
-    # ── Week 15 TODO ──────────────────────────────────────────────────────────
-    # Rewrite the query before retrieval to improve embedding quality.
-    #
-    # The RAG concept: the phrasing of the query directly affects what
-    # embedding gets produced, which affects what documents get retrieved.
-    # A more specific, well-formed query produces a better embedding.
-    #
-    # Steps:
-    #   1. Get conversation context (if any):
-    #        history_context = ""
-    #        if conversation_history and len(conversation_history) > 0:
-    #            history_context = conversation_history.get_formatted_history()
-    #   2. Rewrite: query = rewrite_query(query, history_context)
-    # ─────────────────────────────────────────────────────────────────────────
+    # ── Week 15 TODO ────────────────────────────────────────────────────────── (Done)
+    history_context = ""
+    if conversation_history and len(conversation_history) > 0:
+        history_context = conversation_history.get_formatted_history()
+    query = rewrite_query(query, history_context)
 
     # ── Week 10: Core Retrieval — already complete ───────────────────────────
     documents, distances = retrieve_context(query)
 
-    # ── Week 14 TODO ──────────────────────────────────────────────────────────
-    # Filter out documents that aren't similar enough to be useful.
-    #
-    # The RAG concept: ChromaDB always returns results even when nothing is
-    # relevant. Without filtering, we might generate an answer from completely
-    # unrelated documents. The threshold cuts off low-quality matches.
-    #
-    # Steps:
-    #   1. Filter: documents, distances = filter_by_threshold(documents, distances, SIMILARITY_THRESHOLD)
-    #   2. If not has_relevant_results(documents), return a fallback dict:
-    #        {"answer": get_fallback_response(), "sources": [], "distances": [],
-    #         "confidence": 0.0,
-    #         "grounding": {"verdict": "N/A", "is_grounded": True, "warning": ""},
-    #         "error": ""}
-    # ─────────────────────────────────────────────────────────────────────────
+    # ── Week 14 TODO ────────────────────────────────────────────────────────── (Done)
     documents, distances = filter_by_threshold(documents, distances, SIMILARITY_THRESHOLD)
     if not has_relevant_results(documents):
         return {
@@ -185,7 +162,7 @@ def run_rag(query, conversation_history=None):
             "warning": ""}, 
             "error": ""}
     # ── Week 10: Core Generation — already complete ──────────────────────────
-    # Week 14: wrap this in try/except and call handle_api_error(e) on failure
+    # Week 14: wrap this in try/except and call handle_api_error(e) on failure (Done)
     try:
         answer = generate_answer(query, documents, conversation_history)
     except Exception as e:
